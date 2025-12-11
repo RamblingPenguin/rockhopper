@@ -1,10 +1,9 @@
 package com.ramblingpenguin.rockhopper.s3;
 
-import com.ramblingpenguin.rockhopper.LocalStackEnvironment;
-import com.ramblingpenguin.rockhopper.LocalStackClientComponent;
+import com.ramblingpenguin.rockhopper.AWSEnvironment;
+import com.ramblingpenguin.rockhopper.AWSClientComponent;
 import com.ramblingpenguin.rockhopper.ResourceFactory;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -13,22 +12,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 
 /**
- * S3 infrastructure implementation for LocalStack
+ * S3 infrastructure implementation for a real AWS environment.
  */
-public class LocalStackS3Infrastructure extends S3Infrastructure<LocalStackEnvironment> implements LocalStackClientComponent<S3Client> {
+public class AWSS3Infrastructure extends S3Infrastructure<AWSEnvironment> implements AWSClientComponent<S3Client> {
 
     @Override
-    public EnumSet<LocalStackContainer.Service> getRequiredServices() {
-        return EnumSet.of(LocalStackContainer.Service.S3);
-    }
-
-    @Override
-    public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
+    public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.client = S3Client.builder()
-                .endpointOverride(testEnvironment.getEndpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(
                                 testEnvironment.getAccessKey(),

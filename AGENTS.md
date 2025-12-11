@@ -2,286 +2,181 @@
 
 ## Module Overview
 
-The `rockhopper` module provides **infrastructure-based end-to-end testing** for Java applications using AWS. It uses **direct AWS SDK calls** to create infrastructure in LocalStack or a real AWS environment, allowing you to test your system through actual AWS services.
+The `rockhopper` module provides **infrastructure-based end-to-end testing** for Java applications using AWS. It utilizes **JUnit 5 Extensions** and an **Annotation-Driven** approach to orchestrate LocalStack environments and provision resources.
 
-**Key Principle**: This module creates AWS infrastructure directly using AWS SDK clients. This approach provides granular control and faster test execution compared to deployment-based strategies (e.g., CDK).
-
-**CRITICAL INSTRUCTION**: After making changes, review this file to ensure all new infrastructure components and patterns are documented for future maintainers. You should also review previously written sections to ensure consistency and accuracy.
+**Key Principle**: Tests declare their infrastructure needs via annotations (`@S3Bucket`, etc.) and method parameters (`S3Client`). The framework handles the lifecycle of the LocalStack container, AWS client creation, and resource provisioning.
 
 ## Architecture
 
 ### Component Hierarchy
 
 ```
+InfrastructureComponent (Interface) - JUnit 5 Extension
+├── CloudClientComponent (Base for AWS Client wrappers)
+│   ├── LocalStackClientComponent (Base for LocalStack implementations)
+│   │   ├── LocalStackS3Infrastructure
+│   │   ├── LocalStackSqsInfrastructure
+│   │   ├── LocalStackDynamoDbInfrastructure
+│   │   ├── LocalStackEC2Infrastructure
+│   │   └── LocalStackLambdaInfrastructure
+│   └── (Future: Real AWS implementations)
+└── ...
+
 TestEnvironment (Interface)
-└── LocalStackTestEnvironment (Manages LocalStack container)
+└── LocalStackTestEnvironment (Manages LocalStack container singleton)
 
-InfrastructureComponent (Interface)
-└── CloudClientComponent (Interface for AWS clients)
-    ├── Generic Infrastructure (infrastructure/)
-    │   ├── S3Infrastructure + LocalStackS3Infrastructure
-    │   ├── SqsInfrastructure + LocalStackSqsInfrastructure
-    │   ├── DynamoDbInfrastructure + LocalStackDynamoDbInfrastructure
-    │   ├── EC2Infrastructure + LocalStackEC2Infrastructure
-    │   └── LambdaInfrastructure + LocalStackLambdaInfrastructure
-    └── LambdaInvoker (infrastructure/lambda/)
-        └── Polls SQS queues and invokes Lambda handlers directly
-
-InfrastructureManagement (JUnit5 Extension)
-└── Manages lifecycle: initialize → start → prepare → test → close
+ResourceFactory (Interface)
+└── Maps Annotations -> Resource Creation Logic
+    ├── S3BucketResourceFactory (@S3Bucket)
+    └── S3ObjectResourceFactory (@S3Object)
 ```
 
-### Infrastructure Creation Pattern
+### The Extension Pattern
 
-All infrastructure is created using the **Consumer Pattern**:
+The framework is built entirely on JUnit 5 Extensions.
+- **`BeforeAll`**: Initializes the `TestEnvironment` (LocalStack container) if not already running.
+- **`BeforeEach`**:
+    1.  Initializes the specific AWS Client (e.g., `S3Client`) for the current test context.
+    2.  Scans the test class for resource annotations (e.g., `@S3Bucket`).
+    3.  Executes the corresponding `ResourceFactory` to create the resource in LocalStack.
+    4.  Injects the created resource (or metadata) back into the annotated field.
+- **`ParameterResolver`**: Automatically injects configured AWS clients (`S3Client`, `SqsClient`, etc.) into test methods.
+- **`AfterAll`**: Closes clients.
 
-1.  **Generic Infrastructure Classes** - Located in `src/main/java/.../rockhopper/infrastructure/`, these are reusable across projects.
-    *   Accept a `Consumer<ClientType>` in their constructor.
-    *   Initialize the AWS SDK client in the `initialize()` method.
-    *   Call the consumer in the `start()` method to create resources.
+## Usage Guide
 
-2.  **App-Specific Infrastructure Classes** - Created in your project's `src/test/java` directory.
-    *   Extend the generic infrastructure classes.
-    *   Pass resource creation logic to the parent constructor.
-    *   Use helper methods from the infrastructure interfaces.
+### 1. Basic Setup (S3 Example)
 
-3.  **Helper Methods** - Static methods in infrastructure interfaces to simplify resource creation.
-    *   `S3Infrastructure.createBucket(s3, name, region, env, versioned)`
-    *   `SqsInfrastructure.createQueuePair(sqs, queueName, dlqName)`
-    *   `DynamoDbInfrastructure.createTable(dynamodb, tableName, pkName, pkType, skName, skType, gsis...)`
-
-### Example: Creating App-Specific Infrastructure
+The S3 module is the most mature example of the annotation-driven pattern.
 
 ```java
-// Example app-specific S3 infrastructure in your test sources
-package com.mycompany.myapp.testing;
+import com.ramblingpenguin.rockhopper.s3.LocalStackS3Infrastructure;
+import com.ramblingpenguin.rockhopper.s3.S3Bucket;
+import com.ramblingpenguin.rockhopper.s3.S3Object;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
 
-import com.ramblingpenguin.rockhopper.infrastructure.s3.LocalStackS3Infrastructure;
-import com.ramblingpenguin.rockhopper.infrastructure.s3.S3Infrastructure;
+// 1. Register the infrastructure extension
+@ExtendWith(LocalStackS3Infrastructure.class)
+public class MyS3Test {
 
-public class LocalStackMyAppS3Infrastructure extends LocalStackS3Infrastructure {
+    // 2. Declare resources using annotations
+    @S3Bucket(name = "my-test-bucket")
+    Bucket bucket; // field will be populated with the created Bucket object
 
-    public LocalStackMyAppS3Infrastructure() {
-        super(s3 -> {
-            // Create S3 buckets for your application
-            String region = "us-east-1";
-            String environment = "localstack";
-            S3Infrastructure.createBucket(s3, "my-app-bucket-one", region, environment, true);
-            S3Infrastructure.createBucket(s3, "my-app-bucket-two", region, environment, false);
-            System.out.println("Created S3 buckets for MyApp");
-        });
+    @S3Object(bucketName = "my-test-bucket", key = "config.json", content = "{\"foo\":\"bar\"}")
+    software.amazon.awssdk.services.s3.model.S3Object s3Object;
+
+    // 3. Inject the configured client into the test method
+    @Test
+    public void testBucketExists(S3Client s3) {
+        // The bucket and object are already created in LocalStack
+        var response = s3.listObjects(b -> b.bucket(bucket.name()));
+        
+        Assertions.assertEquals(1, response.contents().size());
+        Assertions.assertEquals("config.json", response.contents().get(0).key());
     }
 }
 ```
+
+### 2. Using Other Services (SQS, DynamoDB, etc.)
+
+For modules where specific resource annotations (like `@SqsQueue`) are not yet implemented, you can still use the extension to manage the client and container lifecycle, and provision resources manually in the test.
+
+```java
+import com.ramblingpenguin.rockhopper.sqs.LocalStackSqsInfrastructure;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import software.amazon.awssdk.services.sqs.SqsClient;
+
+@ExtendWith(LocalStackSqsInfrastructure.class)
+public class MySqsTest {
+
+    @Test
+    public void testQueue(SqsClient sqs) {
+        // Manually create resources using the injected client
+        String queueUrl = sqs.createQueue(b -> b.queueName("my-queue")).queueUrl();
+        
+        sqs.sendMessage(b -> b.queueUrl(queueUrl).messageBody("Hello World"));
+        
+        // ... assertions ...
+    }
+}
+```
+
+### 3. Composite Infrastructure
+
+To use multiple services in a single test, you can create a custom composite infrastructure or chain extensions (though JUnit 5 extension ordering can be tricky). The recommended pattern for complex setups is to create a custom infrastructure class that aggregates others.
+
+*(Note: Direct support for `@ExtendWith({Infra1.class, Infra2.class})` works for client injection, but they will share the same underlying LocalStack container singleton provided by `TestEnvironmentFactory`.)*
+
+## Extending the Framework
+
+### Adding New Resource Types
+
+To add support for a new resource (e.g., a DynamoDB Table annotation):
+
+1.  **Define the Annotation**:
+    ```java
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DynamoDbTable {
+        String tableName();
+        String partitionKey();
+    }
+    ```
+
+2.  **Implement `ResourceFactory`**:
+    ```java
+    public class DynamoDbTableResourceFactory implements ResourceFactory<DynamoDbTable, TableDescription> {
+        private final DynamoDbClient client;
+        
+        public DynamoDbTableResourceFactory(DynamoDbClient client) {
+            this.client = client;
+        }
+
+        @Override
+        public void create(DynamoDbTable annotation, Consumer<TableDescription> fieldSetter) {
+            // Logic to create table in LocalStack using client
+            CreateTableResponse response = client.createTable(...);
+            
+            // Inject result back to test class field
+            fieldSetter.accept(response.tableDescription());
+        }
+        
+        @Override
+        public Class<DynamoDbTable> getAnnotationType() {
+            return DynamoDbTable.class;
+        }
+    }
+    ```
+
+3.  **Register in Infrastructure**:
+    Update `LocalStackDynamoDbInfrastructure.java` to return the new factory:
+    ```java
+    @Override
+    public Collection<ResourceFactory<? extends Annotation, ?>> getResourceFactories() {
+        return Collections.singletonList(new DynamoDbTableResourceFactory(client));
+    }
+    ```
+
+## Lifecycle & State Management
+
+- **Container Reuse**: The `LocalStackTestEnvironment` is managed via a singleton factory. It starts once and persists, speeding up test suites.
+- **Isolation**: While the container persists, `ResourceFactory` logic runs `BeforeEach` test method. This ensures resources are created fresh for every test *if* the factory logic handles cleanup or unique naming.
+    - *Current S3 Implementation Note*: The S3 factories create resources. If names are static, subsequent tests might fail or reuse state. It is best practice to use random suffixes for resource names or ensure cleanup in `@AfterEach` if strict isolation is required.
 
 ## Directory Structure
 
 ```
 rockhopper/
-├── src/
-│   ├── main/
-│   │   └── java/
-│   │       └── com/
-│   │           └── ramblingpenguin/
-│   │               └── rockhopper/
-│   │                   ├── environment/
-│   │                   │   ├── TestEnvironment.java
-│   │                   │   └── LocalStackTestEnvironment.java
-│   │                   └── infrastructure/
-│   │                       ├── s3/
-│   │                       ├── sqs/
-│   │                       ├── dynamodb/
-│   │                       ├── ec2/
-│   │                       └── lambda/
-│   └── test/
-│       └── java/
-│           └── com/
-│               └── ramblingpenguin/
-│                   └── rockhopper/
-│                       ├── LocalStackCchDeclCommAdapterS3Infrastructure.java   // Example
-│                       ├── LocalStackCchDeclCommAdapterSqsInfrastructure.java  // Example
-│                       ├── LocalStackCchDeclCommAdapterDynamoDbInfrastructure.java // Example
-│                       └── CapabilityCommandTests.java                     // Example Test
-├── pom.xml
-└── AGENTS.md
-```
-
-## Infrastructure Lifecycle
-
-### Initialization Flow (`InfrastructureManagement.java`)
-
-```
-@BeforeAll (JUnit5 extension)
-  ↓
-1. environment.initialize(components)
-   - LocalStackTestEnvironment: Creates LocalStack container with required services.
-  ↓
-2. environment.start()
-   - LocalStackTestEnvironment: Starts LocalStack container.
-  ↓
-3. FOR EACH component.initialize(environment)
-   - Creates an AWS SDK client configured for the environment (e.g., S3Client, SqsClient).
-  ↓
-4. FOR EACH component.start()
-   - Executes the Consumer<Client> preparer to create infrastructure resources (buckets, queues, etc.).
-  ↓
-5. environment.prepare()
-   - LocalStackTestEnvironment: No-op.
-  ↓
-TESTS RUN (AWS clients injected via @ParameterResolver)
-  ↓
-@AfterAll
-  ↓
-6. environment.close()
-   - Closes all resources and stops the LocalStack container.
-```
-
-### Parameter Injection
-
-Tests can inject AWS SDK clients as method parameters:
-
-```java
-@Test
-void testSomething(S3Client s3Client, DynamoDbClient dynamoDbClient) {
-    // InfrastructureManagement automatically injects configured clients
-    ListBucketsResponse buckets = s3Client.listBuckets();
-    // ...
-}
-```
-
-## Creating New Tests
-
-### 1. Test with App-Specific Infrastructure
-
-```java
-// Assumes you have created LocalStackMyAppS3Infrastructure etc. in your test sources.
-// package com.mycompany.myapp.testing;
-
-import com.mycompany.myapp.testing.LocalStackMyAppS3Infrastructure;
-import com.mycompany.myapp.testing.LocalStackMyAppDynamoDbInfrastructure;
-import com.mycompany.myapp.testing.LocalStackMyAppSqsInfrastructure;
-
-public class MyAppTest {
-    @RegisterExtension
-    public static final InfrastructureManagement<LocalStackTestEnvironment> infrastructure =
-        new InfrastructureManagement<>(
-            new LocalStackTestEnvironment(),
-            new LocalStackMyAppS3Infrastructure(),
-            new LocalStackMyAppDynamoDbInfrastructure(),
-            new LocalStackMyAppSqsInfrastructure()
-        );
-
-    @Test
-    void myTest(S3Client s3, DynamoDbClient dynamodb, SqsClient sqs) {
-        // Test implementation
-    }
-}
-```
-
-### 2. Test with Custom Inline Infrastructure
-
-```java
-@RegisterExtension
-public static final InfrastructureManagement<LocalStackTestEnvironment> infrastructure =
-    new InfrastructureManagement<>(
-        new LocalStackTestEnvironment(),
-        new LocalStackS3Infrastructure(s3 -> {
-            // Custom S3 setup for this test only
-            s3.createBucket(b -> b.bucket("my-custom-bucket"));
-        }),
-        new LocalStackEC2Infrastructure(ec2 -> {
-            // Create VPC, subnets, security groups as needed
-            var vpc = ec2.createVpc(b -> b.cidrBlock("10.0.0.0/16"));
-            // ...
-        })
-    );
-```
-
-## Best Practices
-
-1.  **Keep Infrastructure Generic**: The generic infrastructure classes are in `rockhopper/infrastructure`. Create your application-specific infrastructure classes in your own project's test sources.
-2.  **Use Helper Methods**: Add static helper methods to your own infrastructure utility classes or use the ones provided to reduce code duplication.
-3.  **Follow Naming Conventions**:
-    *   Generic: `LocalStack{Service}Infrastructure` (e.g., `LocalStackS3Infrastructure`)
-    *   App-specific: `LocalStack{AppName}{Service}Infrastructure` (e.g., `LocalStackMyAppS3Infrastructure`)
-4.  **Understand the Lifecycle**:
-    *   `initialize()`: Create AWS SDK clients only.
-    *   `start()`: Execute preparers to create resources.
-    *   `close()`: Clean up all resources.
-5.  **Use Parameter Injection**: Inject AWS clients directly into your test methods. Let `InfrastructureManagement` handle the lifecycle.
-
-## Lambda Invocation Testing
-
-The framework supports **direct Lambda handler invocation** triggered by SQS messages. This provides true end-to-end testing where Lambda handlers execute actual code against LocalStack AWS services.
-
-### How It Works
-
-1.  `LambdaInvoker` polls SQS queues in background threads.
-2.  When a message arrives, it's converted to an `SQSEvent`.
-3.  The registered `RequestHandler` is invoked with the event.
-4.  The Lambda handler executes with real AWS SDK clients (S3, DynamoDB, etc.) configured for LocalStack.
-5.  The message is deleted from the queue after successful processing.
-
-### Usage Pattern
-
-#### 1. Create App-Specific Lambda Infrastructure
-
-```java
-// In your test sources, e.g., com.mycompany.myapp.testing
-public class LocalStackMyAppLambdaInfrastructure extends LocalStackLambdaInfrastructure {
-    public LocalStackMyAppLambdaInfrastructure() {
-        super((sqs, lambdaInvoker) -> {
-            // Register your Lambda handlers with the queues they listen to
-            lambdaInvoker.register(
-                "http://localhost:4566/000000000000/my-app-queue-localstack",
-                new MyLambdaHandler() // Your actual Lambda handler class
-            );
-            
-            // Set environment variables for the Lambda context
-            lambdaInvoker.setEnvironmentVariable("DYNAMODB_TABLE", "my-app-table-localstack");
-        });
-    }
-}
-```
-
-#### 2. Set Up the Test
-
-```java
-@RegisterExtension
-public static final InfrastructureManagement<LocalStackTestEnvironment> infrastructure =
-    new InfrastructureManagement<>(
-        new LocalStackTestEnvironment(),
-        new LocalStackMyAppS3Infrastructure(),
-        new LocalStackMyAppDynamoDbInfrastructure(),
-        new LocalStackMyAppSqsInfrastructure(),
-        new LocalStackMyAppLambdaInfrastructure() // Add your Lambda infrastructure
-    );
-
-private static LambdaInvoker lambdaInvoker;
-
-@BeforeAll
-static void setUpLambdaInvoker(SqsClient sqs) {
-    var lambdaInfra = infrastructure.getComponent(LocalStackMyAppLambdaInfrastructure.class)
-            .orElseThrow();
-    lambdaInfra.initializeLambdaInvoker(sqs);
-    lambdaInvoker = lambdaInfra.getLambdaInvoker();
-}
-```
-
-#### 3. Write the Test
-
-```java
-@Test
-void testLambdaExecution(SqsClient sqs, DynamoDbClient dynamodb) throws Exception {
-    // Act: Send an SQS message to trigger the Lambda
-    sqs.sendMessage(req -> req.queueUrl(MY_QUEUE_URL).messageBody("{...}"));
-    
-    // Wait for the Lambda to process the message
-    boolean processed = lambdaInvoker.waitForMessages(1, 30);
-    assertTrue(processed, "Lambda should process the message within 30 seconds");
-    
-    // Assert: Verify the results of the Lambda execution
-    GetItemResponse response = dynamodb.getItem(...);
-    assertTrue(response.hasItem(), "Lambda should have created a DynamoDB item");
-}
+├── rockhopper-core/       # Interfaces: InfrastructureComponent, ResourceFactory, TestEnvironment
+├── rockhopper-s3/         # S3 Implementation + Factories (@S3Bucket)
+├── rockhopper-sqs/        # SQS Implementation (Client injection only currently)
+├── rockhopper-dynamodb/   # DynamoDB Implementation (Client injection only currently)
+├── rockhopper-ec2/        # EC2 Implementation
+├── rockhopper-lambda/     # Lambda Implementation
+└── rockhopper-full/       # (Aggregator/Parent)
 ```

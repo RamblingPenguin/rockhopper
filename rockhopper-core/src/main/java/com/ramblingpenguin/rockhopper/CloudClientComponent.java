@@ -12,6 +12,8 @@ public interface CloudClientComponent<CLIENT, ENVIRONMENT extends TestEnvironmen
 
     Class<CLIENT> getClientClass();
 
+    Collection<ResourceFactory<? extends Annotation, ?>> getResourceFactories();
+
     default boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return this.getClientClass().equals(parameterContext.getParameter().getType());
     }

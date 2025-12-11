@@ -1,27 +1,18 @@
 package com.ramblingpenguin.rockhopper.sqs;
 
-import com.ramblingpenguin.rockhopper.LocalStackClientComponent;
-import com.ramblingpenguin.rockhopper.LocalStackEnvironment;
+import com.ramblingpenguin.rockhopper.AWSEnvironment;
+import com.ramblingpenguin.rockhopper.AWSClientComponent;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
-import java.util.EnumSet;
-
-public class LocalStackSqsInfrastructure extends SqsInfrastructure<LocalStackEnvironment> implements LocalStackClientComponent<SqsClient> {
+public class AWSSqsInfrastructure extends SqsInfrastructure<AWSEnvironment> implements AWSClientComponent<SqsClient> {
 
     @Override
-    public EnumSet<LocalStackContainer.Service> getRequiredServices() {
-        return EnumSet.of(LocalStackContainer.Service.SQS);
-    }
-
-    @Override
-    public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
+    public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.client = SqsClient.builder()
-                .endpointOverride(testEnvironment.getEndpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(
                                 testEnvironment.getAccessKey(),

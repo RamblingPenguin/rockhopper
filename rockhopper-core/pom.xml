@@ -18,5 +18,10 @@
             <artifactId>http-client-spi</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sdk-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

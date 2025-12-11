@@ -6,7 +6,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URI;
 import java.util.Collection;
 
-public class LocalStackTestEnvironment implements TestEnvironment<LocalStackTestEnvironment> {
+public class LocalStackEnvironment implements TestEnvironment<LocalStackEnvironment> {
 
     private LocalStackContainer localStackContainer;
 
@@ -24,7 +24,7 @@ public class LocalStackTestEnvironment implements TestEnvironment<LocalStackTest
     }
 
     @Override
-    public void initialize(Collection<InfrastructureComponent<LocalStackTestEnvironment>> components) throws Exception {
+    public void initialize(Collection<InfrastructureComponent<LocalStackEnvironment>> components) throws Exception {
         this.localStackContainer = new LocalStackContainer(
                 DockerImageName.parse("localstack/localstack:3.0"))
                 .withServices(

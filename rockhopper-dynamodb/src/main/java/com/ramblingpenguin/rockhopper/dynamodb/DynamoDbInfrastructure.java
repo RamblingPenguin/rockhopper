@@ -1,32 +1,34 @@
-package com.ramblingpenguin.rockhopper.ec2;
+package com.ramblingpenguin.rockhopper.dynamodb;
 
 import com.ramblingpenguin.rockhopper.CloudClientComponent;
 import com.ramblingpenguin.rockhopper.ResourceFactory;
 import com.ramblingpenguin.rockhopper.TestEnvironment;
-import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
-public abstract class EC2Infrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements CloudClientComponent<Ec2Client, ENVIRONMENT> {
+public abstract class DynamoDbInfrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements CloudClientComponent<DynamoDbClient, ENVIRONMENT> {
 
-    protected Ec2Client client;
+    protected DynamoDbClient client;
 
     @Override
-    public Ec2Client getClient() {
+    public DynamoDbClient getClient() {
         return client;
     }
 
     @Override
-    public Class<Ec2Client> getClientClass() {
-        return Ec2Client.class;
+    public Class<DynamoDbClient> getClientClass() {
+        return DynamoDbClient.class;
     }
 
     @Override
     public Collection<ResourceFactory<? extends Annotation, ?>> getResourceFactories() {
         return Collections.singletonList(
-                new Ec2InstanceResourceFactory(client)
+                new DynamoDbTableResourceFactory(client)
         );
     }
 
