@@ -34,6 +34,7 @@ public class S3BucketResourceFactory implements ResourceFactory<S3Bucket, Bucket
                     return Bucket.builder().name(rhS3Bucket.name()).build();
                 });
         try {
+            field.setAccessible(true);
             field.set(target, bucket);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Cannot set this field", e);
