@@ -1,8 +1,7 @@
 package com.ramblingpenguin.rockhopper.s3;
 
-import com.ramblingpenguin.rockhopper.LocalStackEnvironment;
 import com.ramblingpenguin.rockhopper.LocalStackClientComponent;
-import com.ramblingpenguin.rockhopper.ResourceFactory;
+import com.ramblingpenguin.rockhopper.LocalStackEnvironment;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -10,9 +9,6 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 
 /**

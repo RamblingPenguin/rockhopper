@@ -1,8 +1,8 @@
 package com.ramblingpenguin.rockhopper.s3;
 
+import com.ramblingpenguin.rockhopper.CloudClientComponent;
 import com.ramblingpenguin.rockhopper.ResourceFactory;
 import com.ramblingpenguin.rockhopper.TestEnvironment;
-import com.ramblingpenguin.rockhopper.CloudClientComponent;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.lang.annotation.Annotation;

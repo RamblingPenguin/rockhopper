@@ -6,7 +6,6 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 
 /**

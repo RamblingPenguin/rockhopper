@@ -1,9 +1,9 @@
 package com.ramblingpenguin.rockhopper.lambda;
 
-import com.ramblingpenguin.rockhopper.ResourceFactory;
-import com.ramblingpenguin.rockhopper.TestEnvironment;
 import com.ramblingpenguin.rockhopper.CloudClientComponent;
 import com.ramblingpenguin.rockhopper.InfrastructureComponent;
+import com.ramblingpenguin.rockhopper.ResourceFactory;
+import com.ramblingpenguin.rockhopper.TestEnvironment;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 
 import java.lang.annotation.Annotation;

@@ -1,17 +1,12 @@
 package com.ramblingpenguin.rockhopper.lambda;
 
-import com.ramblingpenguin.rockhopper.AWSEnvironment;
 import com.ramblingpenguin.rockhopper.AWSClientComponent;
-import com.ramblingpenguin.rockhopper.ResourceFactory;
+import com.ramblingpenguin.rockhopper.AWSEnvironment;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
-
-import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Lambda infrastructure implementation for a real AWS environment.
