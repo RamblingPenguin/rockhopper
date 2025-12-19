@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.sqs.model.QueueDoesNotExistException;
 
 import java.lang.reflect.Field;
 
+/**
+ * A {@link ResourceFactory} for creating SQS queues based on the {@link SqsQueue} annotation.
+ */
 public class SqsQueueResourceFactory implements ResourceFactory<SqsQueue, String> {
 
     private final SqsClient client;
@@ -26,6 +29,13 @@ public class SqsQueueResourceFactory implements ResourceFactory<SqsQueue, String
         return String.class;
     }
 
+    /**
+     * Creates the SQS queue if it doesn't already exist and injects the queue URL into the annotated field.
+     *
+     * @param annotation The {@link SqsQueue} annotation instance.
+     * @param field      The field to inject the queue URL into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(SqsQueue annotation, Field field, Object target) {
         String queueUrl;

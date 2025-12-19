@@ -7,6 +7,9 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 import java.lang.reflect.Field;
 
+/**
+ * A {@link ResourceFactory} for creating S3 buckets based on the {@link S3Bucket} annotation.
+ */
 public class S3BucketResourceFactory implements ResourceFactory<S3Bucket, Bucket> {
 
     private final S3Client s3Client;
@@ -25,6 +28,13 @@ public class S3BucketResourceFactory implements ResourceFactory<S3Bucket, Bucket
         return Bucket.class;
     }
 
+    /**
+     * Creates the S3 bucket if it doesn't already exist and injects it into the annotated field.
+     *
+     * @param rhS3Bucket The {@link S3Bucket} annotation instance.
+     * @param field      The field to inject the bucket into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(S3Bucket rhS3Bucket, Field field, Object target) {
         Bucket bucket = s3Client.listBuckets().buckets().stream()

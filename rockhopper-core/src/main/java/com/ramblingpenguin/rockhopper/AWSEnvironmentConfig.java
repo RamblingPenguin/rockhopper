@@ -2,6 +2,10 @@ package com.ramblingpenguin.rockhopper;
 
 import java.util.Optional;
 
+/**
+ * Configuration for the {@link AWSEnvironment}.
+ * Loads credentials and region from environment variables.
+ */
 public class AWSEnvironmentConfig {
 
     private final String region;

@@ -6,6 +6,9 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URI;
 import java.util.Collection;
 
+/**
+ * A {@link TestEnvironment} that uses LocalStack via Testcontainers.
+ */
 public class LocalStackEnvironment implements TestEnvironment<LocalStackEnvironment> {
 
     private LocalStackContainer localStackContainer;

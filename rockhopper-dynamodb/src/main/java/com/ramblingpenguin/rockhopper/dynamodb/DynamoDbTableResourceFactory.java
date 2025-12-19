@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+/**
+ * A {@link ResourceFactory} for creating DynamoDB tables based on the {@link DynamoDbTable} annotation.
+ */
 public class DynamoDbTableResourceFactory implements ResourceFactory<DynamoDbTable, TableDescription> {
 
     private final DynamoDbClient client;
@@ -27,6 +30,13 @@ public class DynamoDbTableResourceFactory implements ResourceFactory<DynamoDbTab
         return TableDescription.class;
     }
 
+    /**
+     * Creates the DynamoDB table if it doesn't already exist and injects the {@link TableDescription} into the annotated field.
+     *
+     * @param annotation The {@link DynamoDbTable} annotation instance.
+     * @param field      The field to inject the table description into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(DynamoDbTable annotation, Field field, Object target) {
         try {

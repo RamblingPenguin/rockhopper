@@ -13,8 +13,17 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Lambda infrastructure implementation for a real AWS environment.
+ */
 public class AWSLambdaInfrastructure extends LambdaInfrastructure<AWSEnvironment> implements AWSClientComponent<LambdaClient> {
 
+    /**
+     * Initializes the LambdaClient using credentials from the {@link AWSEnvironment}.
+     *
+     * @param testEnvironment The AWS test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.lambdaClient = LambdaClient.builder()

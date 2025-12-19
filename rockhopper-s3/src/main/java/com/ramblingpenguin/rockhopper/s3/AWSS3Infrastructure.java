@@ -18,6 +18,12 @@ import java.util.Collection;
  */
 public class AWSS3Infrastructure extends S3Infrastructure<AWSEnvironment> implements AWSClientComponent<S3Client> {
 
+    /**
+     * Initializes the S3Client using credentials from the {@link AWSEnvironment}.
+     *
+     * @param testEnvironment The AWS test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.client = S3Client.builder()

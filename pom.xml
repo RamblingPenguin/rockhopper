@@ -7,7 +7,7 @@
     <groupId>com.ramblingpenguin</groupId>
     <artifactId>rockhopper</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
 
     <name>Rockhopper</name>
     <description>A collection of AWS integration libraries for Rambling Penguin projects.</description>

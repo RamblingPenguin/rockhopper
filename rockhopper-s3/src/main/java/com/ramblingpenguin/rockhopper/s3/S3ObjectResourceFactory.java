@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.lang.reflect.Field;
 
+/**
+ * A {@link ResourceFactory} for creating S3 objects based on the {@link S3Object} annotation.
+ */
 public class S3ObjectResourceFactory implements ResourceFactory<S3Object, software.amazon.awssdk.services.s3.model.S3Object> {
 
     private final S3Client s3Client;
@@ -26,6 +29,13 @@ public class S3ObjectResourceFactory implements ResourceFactory<S3Object, softwa
         return software.amazon.awssdk.services.s3.model.S3Object.class;
     }
 
+    /**
+     * Creates the S3 object if it doesn't already exist and injects it into the annotated field.
+     *
+     * @param rhS3Object The {@link S3Object} annotation instance.
+     * @param field      The field to inject the object into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(S3Object rhS3Object, Field field, Object target) {
         software.amazon.awssdk.services.s3.model.S3Object s3Object = s3Client.listObjects(ListObjectsRequest.builder()

@@ -11,6 +11,9 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.util.EnumSet;
 
+/**
+ * DynamoDB infrastructure implementation for LocalStack.
+ */
 public class LocalStackDynamoDbInfrastructure extends DynamoDbInfrastructure<LocalStackEnvironment> implements LocalStackClientComponent<DynamoDbClient> {
 
     @Override
@@ -18,6 +21,12 @@ public class LocalStackDynamoDbInfrastructure extends DynamoDbInfrastructure<Loc
         return EnumSet.of(LocalStackContainer.Service.DYNAMODB);
     }
 
+    /**
+     * Initializes the DynamoDbClient using credentials and endpoint from the {@link LocalStackEnvironment}.
+     *
+     * @param testEnvironment The LocalStack test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
         this.client = DynamoDbClient.builder()

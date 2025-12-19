@@ -2,6 +2,10 @@ package com.ramblingpenguin.rockhopper;
 
 import java.util.Collection;
 
+/**
+ * Represents a real AWS environment for testing.
+ * Unlike {@link LocalStackEnvironment}, this environment connects to actual AWS services.
+ */
 public class AWSEnvironment implements TestEnvironment<AWSEnvironment> {
 
     private AWSEnvironmentConfig config;

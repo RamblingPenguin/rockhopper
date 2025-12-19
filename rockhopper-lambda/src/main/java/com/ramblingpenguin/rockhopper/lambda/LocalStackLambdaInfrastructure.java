@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 
 /**
- * Lambda infrastructure implementation for LocalStack
+ * Lambda infrastructure implementation for LocalStack.
  */
 public class LocalStackLambdaInfrastructure extends LambdaInfrastructure<LocalStackEnvironment> implements LocalStackClientComponent<LambdaClient> {
 
@@ -27,6 +27,12 @@ public class LocalStackLambdaInfrastructure extends LambdaInfrastructure<LocalSt
         );
     }
 
+    /**
+     * Initializes the LambdaClient using credentials and endpoint from the {@link LocalStackEnvironment}.
+     *
+     * @param testEnvironment The LocalStack test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
         // Create Lambda client

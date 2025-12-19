@@ -11,6 +11,9 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 import java.util.EnumSet;
 
+/**
+ * SQS infrastructure implementation for LocalStack.
+ */
 public class LocalStackSqsInfrastructure extends SqsInfrastructure<LocalStackEnvironment> implements LocalStackClientComponent<SqsClient> {
 
     @Override
@@ -18,6 +21,12 @@ public class LocalStackSqsInfrastructure extends SqsInfrastructure<LocalStackEnv
         return EnumSet.of(LocalStackContainer.Service.SQS);
     }
 
+    /**
+     * Initializes the SqsClient using credentials and endpoint from the {@link LocalStackEnvironment}.
+     *
+     * @param testEnvironment The LocalStack test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
         this.client = SqsClient.builder()

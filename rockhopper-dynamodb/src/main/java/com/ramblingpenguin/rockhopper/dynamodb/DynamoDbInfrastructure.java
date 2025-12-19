@@ -11,6 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Abstract base class for DynamoDB infrastructure components.
+ *
+ * @param <ENVIRONMENT> The type of the test environment.
+ */
 public abstract class DynamoDbInfrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements CloudClientComponent<DynamoDbClient, ENVIRONMENT> {
 
     protected DynamoDbClient client;

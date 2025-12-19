@@ -8,8 +8,17 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 
+/**
+ * EC2 infrastructure implementation for a real AWS environment.
+ */
 public class AWSEC2Infrastructure extends EC2Infrastructure<AWSEnvironment> implements AWSClientComponent<Ec2Client> {
 
+    /**
+     * Initializes the Ec2Client using credentials from the {@link AWSEnvironment}.
+     *
+     * @param testEnvironment The AWS test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.client = Ec2Client.builder()

@@ -10,7 +10,9 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 
 /**
- * Infrastructure component for Lambda functions
+ * Abstract base class for Lambda infrastructure components.
+ *
+ * @param <ENVIRONMENT> The type of the test environment.
  */
 public abstract class LambdaInfrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements InfrastructureComponent<ENVIRONMENT>, CloudClientComponent<LambdaClient, ENVIRONMENT> {
 

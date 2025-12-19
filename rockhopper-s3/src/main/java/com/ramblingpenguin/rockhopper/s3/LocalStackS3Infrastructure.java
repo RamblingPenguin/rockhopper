@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 
 /**
- * S3 infrastructure implementation for LocalStack
+ * S3 infrastructure implementation for LocalStack.
  */
 public class LocalStackS3Infrastructure extends S3Infrastructure<LocalStackEnvironment> implements LocalStackClientComponent<S3Client> {
 
@@ -25,6 +25,12 @@ public class LocalStackS3Infrastructure extends S3Infrastructure<LocalStackEnvir
         return EnumSet.of(LocalStackContainer.Service.S3);
     }
 
+    /**
+     * Initializes the S3Client using credentials and endpoint from the {@link LocalStackEnvironment}.
+     *
+     * @param testEnvironment The LocalStack test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(LocalStackEnvironment testEnvironment, ExtensionContext context) {
         this.client = S3Client.builder()

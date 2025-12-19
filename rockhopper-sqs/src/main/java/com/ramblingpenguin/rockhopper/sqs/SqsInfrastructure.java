@@ -9,6 +9,11 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Abstract base class for SQS infrastructure components.
+ *
+ * @param <ENVIRONMENT> The type of the test environment.
+ */
 public abstract class SqsInfrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements CloudClientComponent<SqsClient, ENVIRONMENT> {
 
     protected SqsClient client;

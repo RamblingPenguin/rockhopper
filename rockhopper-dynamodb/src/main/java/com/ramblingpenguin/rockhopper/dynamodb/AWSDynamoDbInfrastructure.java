@@ -8,8 +8,17 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+/**
+ * DynamoDB infrastructure implementation for a real AWS environment.
+ */
 public class AWSDynamoDbInfrastructure extends DynamoDbInfrastructure<AWSEnvironment> implements AWSClientComponent<DynamoDbClient> {
 
+    /**
+     * Initializes the DynamoDbClient using credentials from the {@link AWSEnvironment}.
+     *
+     * @param testEnvironment The AWS test environment.
+     * @param context         The extension context.
+     */
     @Override
     public void initialize(AWSEnvironment testEnvironment, ExtensionContext context) {
         this.client = DynamoDbClient.builder()

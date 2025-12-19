@@ -12,6 +12,8 @@ import java.util.Collection;
 /**
  * Interface for S3 infrastructure initialization.
  * Provides configured S3Client for tests to use directly.
+ *
+ * @param <ENVIRONMENT> The type of the test environment.
  */
 public abstract class S3Infrastructure<ENVIRONMENT extends TestEnvironment<ENVIRONMENT>> implements CloudClientComponent<S3Client, ENVIRONMENT> {
 
@@ -27,6 +29,13 @@ public abstract class S3Infrastructure<ENVIRONMENT extends TestEnvironment<ENVIR
         return S3Client.class;
     }
 
+    /**
+     * Helper method to create an S3 bucket.
+     *
+     * @param s3         The S3 client.
+     * @param bucketName The name of the bucket to create.
+     * @param versioned  Whether to enable versioning on the bucket.
+     */
     static void createBucket(S3Client s3, String bucketName, boolean versioned) {
         try {
             s3.createBucket(builder -> builder.bucket(bucketName));

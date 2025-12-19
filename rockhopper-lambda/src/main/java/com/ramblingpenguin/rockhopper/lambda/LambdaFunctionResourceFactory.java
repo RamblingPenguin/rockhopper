@@ -11,6 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * A {@link ResourceFactory} for creating Lambda functions based on the {@link LambdaFunction} annotation.
+ */
 public class LambdaFunctionResourceFactory implements ResourceFactory<LambdaFunction, FunctionConfiguration> {
 
     private final LambdaClient client;
@@ -29,6 +32,13 @@ public class LambdaFunctionResourceFactory implements ResourceFactory<LambdaFunc
         return FunctionConfiguration.class;
     }
 
+    /**
+     * Creates the Lambda function if it doesn't already exist and injects the {@link FunctionConfiguration} into the annotated field.
+     *
+     * @param annotation The {@link LambdaFunction} annotation instance.
+     * @param field      The field to inject the function configuration into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(LambdaFunction annotation, Field field, Object target) {
         try {

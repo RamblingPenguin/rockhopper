@@ -6,6 +6,9 @@ import software.amazon.awssdk.services.ec2.model.*;
 
 import java.lang.reflect.Field;
 
+/**
+ * A {@link ResourceFactory} for creating EC2 instances based on the {@link Ec2Instance} annotation.
+ */
 public class Ec2InstanceResourceFactory implements ResourceFactory<Ec2Instance, Instance> {
 
     private final Ec2Client client;
@@ -24,6 +27,13 @@ public class Ec2InstanceResourceFactory implements ResourceFactory<Ec2Instance, 
         return Instance.class;
     }
 
+    /**
+     * Creates the EC2 instance if it doesn't already exist and injects the {@link Instance} object into the annotated field.
+     *
+     * @param annotation The {@link Ec2Instance} annotation instance.
+     * @param field      The field to inject the instance into.
+     * @param target     The target object instance.
+     */
     @Override
     public void create(Ec2Instance annotation, Field field, Object target) {
         // Look for existing instance with the same name tag if name is provided
