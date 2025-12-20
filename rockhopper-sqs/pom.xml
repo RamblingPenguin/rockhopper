@@ -6,13 +6,13 @@
     <parent>
         <groupId>com.ramblingpenguin</groupId>
         <artifactId>rockhopper</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>rockhopper-sqs</artifactId>
     <packaging>jar</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.1</version>
 
     <dependencies>
         <dependency>
