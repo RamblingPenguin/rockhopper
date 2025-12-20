@@ -12,10 +12,6 @@
 
     <artifactId>rockhopper-dynamodb</artifactId>
     <packaging>jar</packaging>
-
-    <name>Rockhopper DynamoDB</name>
-    <description>DynamoDB support for the Rockhopper test framework.</description>
-
     <dependencies>
         <dependency>
             <groupId>com.ramblingpenguin</groupId>

@@ -51,6 +51,46 @@ public class MySqsIntegrationTest {
 }
 ```
 
+## Installation
+
+Rockhopper is available on Maven Central. Find the latest versions [here](https://mvnrepository.com/artifact/com.ramblingpenguin/rockhopper-s3) (for S3) and [here](https://mvnrepository.com/artifact/com.ramblingpenguin/rockhopper-full) (for all modules).
+
+Add the dependencies for the services you need to your build file.
+
+For example, to test with S3:
+
+**Maven:**
+```xml
+<dependency>
+    <groupId>com.ramblingpenguin</groupId>
+    <artifactId>rockhopper-s3</artifactId>
+    <version>0.1.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+**Gradle (Kotlin):**
+```kotlin
+testImplementation("com.ramblingpenguin:rockhopper-s3:0.1.1")
+```
+
+Or to include all modules:
+
+**Maven:**
+```xml
+<dependency>
+    <groupId>com.ramblingpenguin</groupId>
+    <artifactId>rockhopper-full</artifactId>
+    <version>0.1.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+**Gradle (Kotlin):**
+```kotlin
+testImplementation("com.ramblingpenguin:rockhopper-full:0.1.1")
+```
+
 ## Modules
 
 Rockhopper is a multi-module project. You can include only the dependencies for the services you need.

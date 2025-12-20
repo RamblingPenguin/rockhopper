@@ -13,9 +13,6 @@
     <artifactId>rockhopper-full</artifactId>
     <packaging>jar</packaging>
 
-    <name>Rockhopper Full</name>
-    <description>Aggregator for all Rockhopper modules.</description>
-
     <dependencies>
         <dependency>
             <groupId>com.ramblingpenguin</groupId>

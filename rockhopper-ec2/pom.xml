@@ -12,10 +12,6 @@
 
     <artifactId>rockhopper-ec2</artifactId>
     <packaging>jar</packaging>
-
-    <name>Rockhopper EC2</name>
-    <description>EC2 support for the Rockhopper test framework.</description>
-
     <dependencies>
         <dependency>
             <groupId>com.ramblingpenguin</groupId>

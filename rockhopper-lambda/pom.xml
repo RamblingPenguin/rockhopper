@@ -13,9 +13,6 @@
     <artifactId>rockhopper-lambda</artifactId>
     <packaging>jar</packaging>
 
-    <name>Rockhopper Lambda</name>
-    <description>Lambda support for the Rockhopper test framework.</description>
-
     <dependencies>
         <dependency>
             <groupId>com.ramblingpenguin</groupId>
