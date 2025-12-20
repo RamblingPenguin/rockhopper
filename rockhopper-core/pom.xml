@@ -12,6 +12,10 @@
 
     <artifactId>rockhopper-core</artifactId>
     <packaging>jar</packaging>
+
+    <name>Rockhopper Core</name>
+    <description>Core components for the Rockhopper test framework.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -13,6 +13,9 @@
     <artifactId>rockhopper-s3</artifactId>
     <packaging>jar</packaging>
 
+    <name>Rockhopper S3</name>
+    <description>S3 support for the Rockhopper test framework.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.ramblingpenguin</groupId>

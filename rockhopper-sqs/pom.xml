@@ -12,7 +12,9 @@
 
     <artifactId>rockhopper-sqs</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.1</version>
+
+    <name>Rockhopper SQS</name>
+    <description>SQS support for the Rockhopper test framework.</description>
 
     <dependencies>
         <dependency>
